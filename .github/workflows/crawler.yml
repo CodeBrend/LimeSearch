@@ -1,0 +1,32 @@
+name: Automatic Web Crawler
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Her gece 00:00'da otomatik çalışır
+  workflow_dispatch: # İstediğin zaman manuel başlatma butonu sunar
+
+jobs:
+  crawl-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repoyu Klonla
+        uses: actions/checkout@v3
+
+      - name: Python Kur
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Kütüphaneleri Yükle
+        run: pip install beautifulsoup4
+
+      - name: Botu Çalıştır
+        run: python crawler.py
+
+      - name: Güncellenmiş Veritabanını Kaydet
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.json
+          git commit -m "Veritabanı güncellendi" || exit 0
+          git push
